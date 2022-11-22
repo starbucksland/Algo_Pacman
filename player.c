@@ -37,10 +37,10 @@ const char * binome="CordonGigandet";
 
 // put the prototypes of your additional functions/procedures below
 
-bool checkghostN(int,char **,int,int);          //this module check if there is a ghost in a case
-bool checkghostE(int,char **,int,int);          //this module check if there is a ghost in a case
-bool checkghostS(int,char **,int,int);          //this module check if there is a ghost in a case
-bool checkghostW(int,char **,int,int);          //this module check if there is a ghost in a case
+bool checkghostN(char **,int,int);          //this module check if there is a ghost in a case
+bool checkghostE(char **,int,int);          //this module check if there is a ghost in a case
+bool checkghostS(char **,int,int);          //this module check if there is a ghost in a case
+bool checkghostW(char **,int,int);          //this module check if there is a ghost in a case
 bool checkdiag1(char**,int,int);
 bool checkdiag2(char**,int,int);
 bool checkdiag3(char**,int,int);
@@ -100,21 +100,54 @@ direction pacman(
 
   //int vectpositions[8];
 
-	if(y==0 || (y>0 && map[y-1][x]!=WALL && map[y-1][x]!=DOOR)){  //We check if pacman can go north (no wall or anything else)
-	
-		for (i=1;i<4;i++){   
-			//printf("il rentre nord \n");                                     //we check the 3 positions up north
-			if(checkghostN(i,map,x,y)==true && checkdiag1(map,x,y)==true && checkdiag2(map,x,y)==true){                // we check that there are no ghost in this cases
+/*-------------------------------------------------------------------------*/
+//dealing with top left door to transfer pacman to top right door
+if(x==0 && y==9){
+	map[x][y]=PATH;
+	x=17;
+	y=9;
+}
+
+//dealing with bottom left door
+if(x==0 && y==11){
+	map[x][y]=PATH;
+	x=17;
+	y=11;
+}
+
+//Top right door
+if(x==17 && y==9){
+	map[x][y]=PATH;
+	x=0;
+	y=9;
+}
+
+//Bottom left door
+if(x==17 && y==11){
+	map[x][y]=PATH;
+	x=0;
+	y=11;
+}
+
+/*--------------------------------------------------------------------------*/
+/*Il faut que tu revois la stratégie pour les déplacement*/
+
+
+
+/*--------------------------------------------------------------------------*/
+
+	if(y==0 || (y>0 && map[y-1][x]!=WALL && map[y-1][x]!=DOOR)){  //We check if pacman can go north (no wall or anything else)  
+			//printf("il rentre nord \n");
+			if(checkghostN(map,x,y)==true && checkdiag1(map,x,y)==true && checkdiag2(map,x,y)==true){                // we check that there are no ghost in this cases
 				north=false;                                     //if there is a ghost, you can't go north
 			} else north=true;
 			//printf("nord : %d\n",north); 
-		}
 	}
 
 	if(x==xsize-1 || (x<xsize-1 && map[y][x+1]!=WALL && map[y][x+1]!=DOOR)){  //We check if pacman can go east (no wall or anything else)
 	//printf("il rentre east \n");    
 		for (i=1;i<4;i++){                                        //we check the 3 positions up east
-			if(checkghostE(i,map,x,y)==true && checkdiag2(map,x,y)==true && checkdiag3(map,x,y)==true){                              // we check that there are no ghost in this cases
+			if(checkghostE(map,x,y)==true && checkdiag2(map,x,y)==true && checkdiag3(map,x,y)==true){                              // we check that there are no ghost in this cases
 				east=false;                                      //if there is a ghost, you can't go east
 			} else east=true;
 			//printf("est : %d\n",east);
@@ -124,7 +157,7 @@ direction pacman(
 	if(y==ysize-1 || (y<ysize-1 && map[y+1][x]!=WALL && map[y+1][x]!=DOOR)){  //We check if pacman can go south (no wall or anything else)
 	//printf("il rentre sud \n");
 		for (i=1;i<4;i++){                                        //we check the 3 positions up south
-			if(checkghostS(i,map,x,y)==true && checkdiag4(map,x,y)==true && checkdiag3(map,x,y)==true){                              // we check that there are no ghost in this cases
+			if(checkghostS(map,x,y)==true && checkdiag4(map,x,y)==true && checkdiag3(map,x,y)==true){                              // we check that there are no ghost in this cases
 				south=false;                                      //if there is a ghost, you can't go south
 			} else south=true;
 			//printf("sud : %d\n",south);
@@ -134,18 +167,14 @@ direction pacman(
 	if(x==0 || (x>0 && map[y][x-1]!=WALL && map[y][x-1]!=DOOR)){  //We check if pacman can go west (no wall or anything else)
 	//printf("il rentre ouest \n");
 		for (i=1;i<4;i++){                                        //we check the 3 positions up west
-			if(checkghostW(i,map,x,y)==true && checkdiag4(map,x,y)==true && checkdiag1(map,x,y)==true){                              // we check that there are no ghost in this cases
+			if(checkghostW(map,x,y)==true && checkdiag4(map,x,y)==true && checkdiag1(map,x,y)==true){                              // we check that there are no ghost in this cases
 				west=false;                                      //if there is a ghost, you can't go west
 			} else west=true;
 			//printf("ouest : %d\n",west);
 		}
 	}
-/*
-printf("north : %d\n",north);
-printf("eats : %d\n",east);
-printf("south : %d\n",south);
-printf("west :%d\n",west);
-*/
+
+/*---------------------------------------------------------------------------------------------------------------------------*/
 
 
 	for(j=0;j<4;j++){
@@ -172,52 +201,35 @@ printf("west :%d\n",west);
 			d=WEST;
 		}
 
-		case 2: //coordghosts(coordGhost1,coordGhost2,coordGhost3,coordGhost4,posghost,* *map,xsize,ysize); //If we can go in 2 directions, we retrieve the ghost's coordonates and find which way bring you to the farest point from the ghosts
-				//We calcul the vector between the first ghost and pacman
+		case 2: 
 
-				/* v1[0]= coordGhost1[0]-x;
-				v1[1]= coordGhost1[1]-y;
-				v2[0]= coordGhost2[0]-x;
-				v2[1]= coordGhost2[1]-x;
-				v3[0]= coordGhost3[0]-x;
-				v3[1]= coordGhost3[1]-y;
-				v4[0]= coordGhost4[0]-x;
-				v4[1]= coordGhost4[1]-x;
-
-				vectpositions[0]=sqrt(v1[0]*v1[0]+v1[1]*v1[1]);
-				vectpositions[1]=sqrt(v2[0]*v2[0]+v2[1]*v2[1]);
-				vectpositions[2]=sqrt(v3[0]*v3[0]+v3[1]*v3[1]);
-				vectpositions[3]=sqrt(v4[0]*v4[0]+v4[1]*v4[1]) */
-
-
-					if(dir1[0]==0){
-						if(map[y-1][x]==VIRGIN_PATH){
-						d=NORTH;
-						}
+				if(dir1[0]==0){
+					if(map[y-1][x]==VIRGIN_PATH || map[y-1][x]==ENERGY){
+					d=NORTH;
 					}
-
-					if(dir1[0]==1){
-						if(map[y][x+1]==VIRGIN_PATH){
-						d=EAST;
-						}
-					}
-
-					if(dir1[0]==2){
-						if(map[y+1][x]==VIRGIN_PATH){
-						d=SOUTH;
-						}
-					}
+				}
 				
-					if(dir1[0]==3){
-						if(map[y][x-1]==VIRGIN_PATH){
-						d=WEST;
-						}
-					}
+				if(dir1[0]==1){
+					if(map[y][x+1]==VIRGIN_PATH || map[y][x+1]==ENERGY){
+					d=EAST;
+					}					}
 
-					if(d!=NORTH || d!=EAST || d!=SOUTH || d!=WEST){
-						if(map[x][y-1]==PATH){
-							d=NORTH;
-						}
+				if(dir1[0]==2){
+					if(map[y+1][x]==VIRGIN_PATH || map[y+1][x]==ENERGY){
+						d=SOUTH;
+					}
+				}
+				
+				if(dir1[0]==3){
+					if(map[y][x-1]==VIRGIN_PATH || map[y][x-1]==ENERGY){
+						d=WEST;
+					}
+				}
+
+				if(d!=NORTH || d!=EAST || d!=SOUTH || d!=WEST){
+					if(map[x][y-1]==PATH){
+						d=NORTH;
+					}
 
 						if(map[x+1][y]==PATH){
 							d=EAST;
@@ -232,16 +244,16 @@ printf("west :%d\n",west);
 						}
 					}
 			
-		case 3: if(north && map[y-1][x]==VIRGIN_PATH){
+		case 3: if(north && (map[y-1][x]==VIRGIN_PATH || map[y-1][x]==ENERGY)){
 			d=NORTH;
 		}
-		if(east && map[y][x+1]==VIRGIN_PATH){
+		if(east && (map[y][x+1]==VIRGIN_PATH || map[y][x+1]==ENERGY)){
 			d=EAST;
 		}
-		if(south && map[y+1][x]==VIRGIN_PATH){
+		if(south && (map[y+1][x]==VIRGIN_PATH || map[y+1][x]==ENERGY)){
 			d=SOUTH;
 		}
-		if(west && map[y][x-1]==VIRGIN_PATH){
+		if(west && (map[y][x-1]==VIRGIN_PATH || map[y][x-1]==ENERGY)){
 			d=WEST;
 		}
 		if(d!=NORTH || d!=EAST || d!=SOUTH || d!=WEST){
@@ -303,33 +315,70 @@ printf("west :%d\n",west);
 
 // the code of your additional functions/procedures must be put below
 
-bool checkghostN(int i, char * * map, int x,int y){
-	if(map[y-i][x]==GHOST1 || map[y-i][x]==GHOST2 || map[y-i][x]==GHOST3 || map[y-i][x]==GHOST4 ){
-		return true;                       //we check if the considered case is a ghost and return a bool
+bool checkghostN(char * * map, int x,int y){
+	int i=1;
+	for(i=1;i<4;i++){
+		if(map[y-i][x]==GHOST1 || map[y-i][x]==GHOST2 || map[y-i][x]==GHOST3 || map[y-i][x]==GHOST4 ){
+			//printf("ya un fantome nord \n");
+			return true;                   //we check if the considered case is a ghost and return a bool
+			break;
+		}
+		else {
+			//printf("ya pas fantome nord\n");
+		} 
 	}
-	else return false;
+	return false; 
 }
 
-bool checkghostE(int i, char * * map, int x,int y){
-	if(map[y][x+i]==GHOST1 || map[y][x+i]==GHOST2 || map[y][x+i]==GHOST3 || map[y][x+i]==GHOST4){
-		return true;                       //we check if the considered case is a ghost and return a bool
+bool checkghostE(char * * map, int x,int y){
+	int i=1;
+	for(i=1;i<4;i++){
+		if(map[y][x+i]==GHOST1 || map[y][x+i]==GHOST2 || map[y][x+i]==GHOST3 || map[y][x+i]==GHOST4 ){
+			//printf("ya un fantome est \n");
+			return true;                   //we check if the considered case is a ghost and return a bool
+			break;
+		}
+		else {
+			//printf("ya pas fantome est\n");
+		} 
 	}
-	else return false;
+	return false;
 }
 
-bool checkghostS(int i, char * * map, int x,int y){
-	if(map[y+i][x]==GHOST1 || map[y+i][x]==GHOST2 || map[y+i][x]==GHOST3 || map[y+i][x]==GHOST4){
-		return true;                       //we check if the considered case is a ghost and return a bool
+bool checkghostS(char * * map, int x,int y){
+	int i=1;
+	for(i=1;i<4;i++){
+		if(map[y+i][x]==GHOST1 || map[y+i][x]==GHOST2 || map[y+i][x]==GHOST3 || map[y+i][x]==GHOST4 ){
+			//printf("ya un fantome sud \n");
+			return true;                   //we check if the considered case is a ghost and return a bool
+			break;
+		}
+		else {
+			//printf("ya pas fantome sud\n");
+		} 
 	}
-	else return false;
+	return false;
 }
 
-bool checkghostW(int i, char * * map, int x,int y){
-	if(map[y][x-i]==GHOST1 || map[y][x-i]==GHOST2 || map[y][x-i]==GHOST3 || map[y][x-i]==GHOST4){
-		return true;                       //we check if the considered case is a ghost and return a bool
+bool checkghostW(char * * map, int x,int y){
+	int i=1;
+	for(i=1;i<4;i++){
+		if(map[y][x-i]==GHOST1 || map[y][x-i]==GHOST2 || map[y][x-i]==GHOST3 || map[y][x-i]==GHOST4 ){
+			//printf("ya un fantome ouest \n");
+			return true;                   //we check if the considered case is a ghost and return a bool
+			break;
+		}
+		else {
+			//printf("ya pas fantome ouest\n");
+		} 
 	}
-	else return false;
+	return false;
 }
+
+
+
+
+
 
 bool checkdiag1(char ** map, int x,int y){
 	if(map[y-1][x-1]==GHOST1 || map[y-1][x-1]==GHOST2 || map[y-1][x-1]==GHOST3 || map[y-1][x-1]==GHOST4){
