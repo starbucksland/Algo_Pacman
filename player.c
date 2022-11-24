@@ -41,6 +41,14 @@ bool checkghostN(int,char**,int,int);          //this module check if there is a
 bool checkghostE(int,char**,int,int);
 bool checkghostS(int,char**,int,int);
 bool checkghostW(int,char**,int,int);
+bool checkboostN(char**,int,int);          //this module check if there is a ghost in a case
+bool checkboostE(char**,int,int);
+bool checkboostS(char**,int,int);
+bool checkboostW(char**,int,int);
+bool checkdiagNW(char**,int,int);          //this module check if there is a ghost in a case
+bool checkdiagNE(char**,int,int);
+bool checkdiagSE(char**,int,int);
+bool checkdiagSW(char**,int,int);
 //char coordghosts(int *, int *, int *, int *,char *);        //this module find the ghosts and return their coordonates
 direction randomDirection(bool,bool,bool,bool,bool);
 
@@ -72,7 +80,10 @@ direction pacman(
 
   int i;   //for the checking of the cases ahead
   int j;
-  int h;
+  //int hN=0;
+  //int hE=0;
+  //int hS=0;
+  //int hW=0;
   int a;
   int z;
   int g=0;
@@ -102,44 +113,107 @@ direction pacman(
 
 	if(y==0 || (y>0 && map[y-1][x]!=WALL && map[y-1][x]!=DOOR)){  //We check if pacman can go north (no wall or anything else)
 		for (i=1;i<3;i++){                                        //we check the 3 positions up north
-			if(checkghostN(i,map,x,y)==true){                              // we check that there are no ghost in this cases
-				north=false;                                      //if there is a ghost, you can't go north
-				h=h+1;
+			if(checkghostN(i,map,x,y)==true || checkdiagNW(map,x,y)==true || checkdiagNE(map,x,y)==true){                              // we check that there are no ghost in this cases
+				if(checkboostE(map,x,y)==true){
+					return d=EAST;
+				}
+				if(checkboostS(map,x,y)==true){
+					return d=SOUTH;
+				}
+				if(checkboostW(map,x,y)==true){
+					return d=WEST;
+				}
+				else {north=false;                                      //if there is a ghost, you can't go north
+				printf("t'es au nord mon pote");}
 			}
+			/*if (map[y-1][x]==ENERGY){
+				hN=hN+1;
+				printf("bon\n");
+			}*/
 			else north=true;
 		}
 	}
 
 	if(x==xsize-1 || (x<xsize-1 && map[y][x+1]!=WALL && map[y][x+1]!=DOOR)){  //We check if pacman can go east (no wall or anything else)
 		for (i=1;i<3;i++){                                        //we check the 3 positions up east
-			if(checkghostE(i,map,x,y)==true){                              // we check that there are no ghost in this cases
-				east=false;                                      //if there is a ghost, you can't go east
-				h=h+1;
+			if(checkghostE(i,map,x,y)==true || checkdiagNE(map,x,y)==true || checkdiagSE(map,x,y)==true){                              // we check that there are no ghost in this cases
+				if(checkboostN(map,x,y)==true){
+					return d=NORTH;
+				}
+				if(checkboostS(map,x,y)==true){
+					return d=SOUTH;
+				}
+				if(checkboostW(map,x,y)==true){
+					return d=WEST;
+				}
+				else {east=false;                                      //if there is a ghost, you can't go east
+				printf("t'es à l'est mon pote");}
 			}
+			/*if (map[y-1][x]==ENERGY){
+				hN=hN+1;
+				printf("boe\n");
+			}*/
 			else east=true;
 		}
 	}
 
 	if(y==ysize-1 || (y<ysize-1 && map[y+1][x]!=WALL && map[y+1][x]!=DOOR)){  //We check if pacman can go south (no wall or anything else)
 		for (i=1;i<3;i++){                                        //we check the 3 positions up south
-			if(checkghostS(i,map,x,y)==true){                              // we check that there are no ghost in this cases
-				south=false;                                      //if there is a ghost, you can't go south
-				h=h+1;
+			if(checkghostS(i,map,x,y)==true || checkdiagSW(map,x,y)==true || checkdiagSE(map,x,y)==true){                              // we check that there are no ghost in this cases
+			  if(checkboostE(map,x,y)==true){
+					return d=EAST;
+				}
+				if(checkboostN(map,x,y)==true){
+					return d=NORTH;
+				}
+				if(checkboostW(map,x,y)==true){
+					return d=WEST;
+				}
+				else {south=false;                                      //if there is a ghost, you can't go south
+				printf("t'es au sud mon pote");}
 			}
+			/*if (map[y-1][x]==ENERGY){
+				hN=hN+1;
+				printf("bos\n");
+			}*/
 			else south=true;
 		}
 	}
 
 	if(x==0 || (x>0 && map[y][x-1]!=WALL && map[y][x-1]!=DOOR)){  //We check if pacman can go west (no wall or anything else)
 		for (i=1;i<3;i++){                                        //we check the 3 positions up west
-			if(checkghostW(i,map,x,y)==true){                              // we check that there are no ghost in this cases
-				west=false;                                      //if there is a ghost, you can't go west
-				h=h+1;
+			if(checkghostW(i,map,x,y)==true || checkdiagNW(map,x,y)==true || checkdiagSW(map,x,y)==true){                              // we check that there are no ghost in this cases
+				if(checkboostE(map,x,y)==true){
+					return d=EAST;
+				}
+				if(checkboostS(map,x,y)==true){
+					return d=SOUTH;
+				}
+				if(checkboostN(map,x,y)==true){
+					return d=NORTH;
+				}
+				else {west=false;                                      //if there is a ghost, you can't go west
+				printf("t'es à l'ouest mon pote");}
 			}
+			/*if (map[y-1][x]==ENERGY){
+				hN=hN+1;
+				printf("bow\n");
+			}*/
 			else west=true;
 		}
 	}
-
+	/*if (hN>=1){				// pacman va directement vers le boost (pacman goes directly on the boost)
+		return d=NORTH;
+	}
+	if (hE>=1){
+		return d=EAST;
+	}
+	if (hS>=1){
+		return d=SOUTH;
+	}
+	if (hW>=1){
+		return d=WEST;
+	}*/
 	for(j=0;j<4;j++){
 		if(dir[j]==true){             //can we go north,east,south,west ?
 			dir1[p]=j;                //if yes then we store the value of the direction in dir1. For instance if we can only go north then dir1 = [0]
@@ -243,7 +317,62 @@ bool checkghostW(int i,char**map,int x,int y){
 	}
 	else return false;
 }
+//.....................................................................................................................................
+bool checkghostNW(char**map,int x,int y){
+	if (map[y-1][x-1]==GHOST1||map[y-1][x-1]==GHOST2||map[y-1][x-1]==GHOST3||map[y-1][x-1]==GHOST4){
+		return true;
+	}
+	else return false;
+}
 
+bool checkghostNE(char**map,int x,int y){
+	if (map[y-1][x+1]==GHOST1||map[y-1][x+1]==GHOST2||map[y-1][x+1]==GHOST3||map[y-1][x+1]==GHOST4){
+		return true;
+	}
+	else return false;
+}
+
+bool checkghostSW(char**map,int x,int y){
+	if (map[y+1][x-1]==GHOST1||map[y+1][x-1]==GHOST2||map[y+1][x-1]==GHOST3||map[y+1][x-1]==GHOST4){
+		return true;
+	}
+	else return false;
+}
+bool checkghostSE(char**map,int x,int y){
+	if (map[y+1][x+1]==GHOST1||map[y+1][x+1]==GHOST2||map[y+1][x+1]==GHOST3||map[y+1][x+1]==GHOST4){
+		return true;
+	}
+	else return false;
+}
+//......................................................................................................................
+bool checkboostN(char**map,int x,int y){
+	if (map[y-1][x]==ENERGY){
+		return true;
+	}
+	else return false;
+}
+
+bool checkboostE(char**map,int x,int y){
+	if (map[y][x+1]==ENERGY){
+		return true;
+	}
+	else return false;
+}
+
+bool checkboostS(char**map,int x,int y){
+	if (map[y+1][x]==ENERGY){
+		return true;
+	}
+	else return false;
+}
+
+bool checkboostW(char**map,int x,int y){
+	if (map[y][x-1]==ENERGY){
+		return true;
+	}
+	else return false;
+}
+//......................................................................................................................
 /*char coordghosts(int * coordGhost1, int * coordGhost2, int * coordGhost3, int * coordGhost4,char * posghost){
 	int i; int j;
 	for(i=0;i=<ysize;i++){      //Lines
