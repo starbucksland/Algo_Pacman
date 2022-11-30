@@ -44,12 +44,16 @@ direction pacman(
 
   // can pacman go north?
   if(y==0 || (y>0 && map[y-1][x]!=WALL && map[y-1][x]!=DOOR)) north=true;
+
   // can pacman go east?
   if(x==xsize-1 || (x<xsize-1 && map[y][x+1]!=WALL && map[y][x+1]!=DOOR)) east=true;
+
   // can pacman go south?
   if(y==ysize-1 || (y<ysize-1 && map[y+1][x]!=WALL && map[y+1][x]!=DOOR)) south=true;
+
   // can pacman go west?
   if(x==0 || (x>0 && map[y][x-1]!=WALL && map[y][x-1]!=DOOR)) west=true;
+
 
   // guess a direction among the allowed four, until a valid choice is made
   do {
