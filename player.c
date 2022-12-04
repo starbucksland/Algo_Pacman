@@ -31,7 +31,7 @@ extern const int ENERGY_SCORE; // reward for eating an energizer
 
 
 // put the student names below (mandatory)
-const char * binome="CordonGigandet";
+const char * binome="CORDON GIGANDET";
 
 /*---------------------------------------------------------------------------------------------*/
 
@@ -42,15 +42,15 @@ bool checkghostE(char **,int,int,int);          //this module check if there is 
 bool checkghostS(char **,int,int,int);          //this module check if there is a ghost in a case
 bool checkghostW(char **,int,int);          //this module check if there is a ghost in a case
 bool checkdiagSupGauche(char**,int,int);    //this module check if there is a ghost in the top lef diagonal
-bool checkdiagSupDroite(char**,int,int,int);
-bool checkdiagInfDroite(char**,int,int,int,int);
-bool checkdiagInfGauche(char**,int,int,int);
-void pacmanNoFear(int,int,int,int,char**,bool,bool,bool,bool,direction *,direction); //in order (x,y,xsize,ysize,map,north,east,south,west,&d)
-void pacmanFear(int,int,int,int,char**,bool,bool,bool,bool,direction *,direction);
-bool IsDoor(int ,int , int, int,direction *, direction); //In order (&x, &y ,xsize, ysize, d,lastdir),teleporting pacman in case of a door
-void CanGoButNoPoint(int,int,char**,bool,bool,bool,bool,direction*,direction);
-void CanGoPointOrGhost(int,int,char**,bool,bool,bool,bool,direction*);
-void CanGoPoint(int,int,char**,bool,bool,bool,bool,direction*);
+bool checkdiagSupDroite(char**,int,int,int);  //Same but Top Right
+bool checkdiagInfDroite(char**,int,int,int,int);  //Same but Bottom right
+bool checkdiagInfGauche(char**,int,int,int);	//Same but bottom left
+void pacmanNoFear(int,int,int,int,char**,bool,bool,bool,bool,direction *,direction); //in order (x,y,xsize,ysize,map,north,east,south,west,&d,lastdirection) What to do if pacman in energy mode
+void pacmanFear(int,int,int,int,char**,bool,bool,bool,bool,direction *,direction);   //in order (x,y,xsize,ysize,map,north,east,south,west,&d,lastdirection) What to do if pacman not in energy mode
+bool IsDoor(int ,int , int, int,direction *, direction); //In order (&x, &y ,xsize, ysize, d,lastdirection),teleporting pacman in case of a door
+void CanGoButNoPoint(int,int,char**,bool,bool,bool,bool,direction*,direction);	//What to do if the path is clear of point, we give priority to straight lines
+void CanGoPointOrGhost(int,int,char**,bool,bool,bool,bool,direction*);	// What to eat between points or ghosts
+void CanGoPoint(int,int,char**,bool,bool,bool,bool,direction*);	//What to do if the path is virgin
 
 
 /*---------------------------------------------------------------------------------------------*/
@@ -80,13 +80,13 @@ direction pacman(
 
 /*-------------------------------------------------------------------------*/
 
-if(energy && remainingenergymoderounds>=15){  //Beginning of IfEnergy
+if(energy && remainingenergymoderounds>=15){  //If pacman in energy mode and the time remaining is sufficient
 
 	if(IsDoor(x,y,xsize,ysize,&d,lastdirection)){	//teleporting pacman if he's standing in a door
-		goto DoorTaken;
+		goto DoorTaken;	//We stop the program and begin angain
 		}
 	else {
-		pacmanNoFear(x,y,xsize,ysize,map,north,east,south,west,&d, lastdirection);
+		pacmanNoFear(x,y,xsize,ysize,map,north,east,south,west,&d, lastdirection);	//Instructions for pacman
 		}
 
 }	//End of Energy
@@ -96,12 +96,12 @@ else { //Beginning if else (No energy)
 		goto DoorTaken;
 		}
 	else {
-	pacmanFear(x,y,xsize,ysize,map,north,east,south,west,&d,lastdirection);
+	pacmanFear(x,y,xsize,ysize,map,north,east,south,west,&d,lastdirection);	//Instructions for pacman
 		}
 
 }		//End of NoEnergy
 
-	DoorTaken:;
+	DoorTaken:;	//Target after IsDoor
 	return d; // answer to the game engine
 }  //End of main code
 
@@ -110,18 +110,17 @@ else { //Beginning if else (No energy)
 
 // the code of your additional functions/procedures must be put below
 
-bool checkghostN(char * * map, int x,int y){
+bool checkghostN(char * * map, int x,int y){	//Is there a ghost to the NORTH ?
 	int i=1;
-	if(y!=0){
-		if(y<=2){
+	if(y!=0){	// Pacman not in a door
+		if(y<=2){	//If pacman is close to the top of the map
 			if(map[y-1][x]==GHOST1 || map[y-1][x]==GHOST2 || map[y-1][x]==GHOST3 || map[y-1][x]==GHOST4 ){
 				return true;
 			} else return false;
 		}
-		for(i=1;i<4;i++){
+		for(i=1;i<4;i++){	//Otherwise we check 3 steps ahead
 			if(map[y-i][x]==GHOST1 || map[y-i][x]==GHOST2 || map[y-i][x]==GHOST3 || map[y-i][x]==GHOST4 ){
-				//printf("ya un fantome nord \n");
-				return true;                   //we check if the considered case is a ghost and return a bool
+				return true;          //we check if the considered case is a ghost and return a bool
 				break;
 			}
 		}
@@ -131,7 +130,6 @@ bool checkghostN(char * * map, int x,int y){
 
 bool checkghostE(char * * map, int x,int y,int xsize){
 	int i=1;
-
 	if(x!=xsize-1){
 	if(x<=xsize-2){
 		if(map[y][x+1]==GHOST1 || map[y][x+1]==GHOST2 || map[y][x+1]==GHOST3 || map[y][x+1]==GHOST4){
@@ -143,9 +141,6 @@ bool checkghostE(char * * map, int x,int y,int xsize){
 			return true;                   //we check if the considered case is a ghost and return a bool
 			break;
 		}
-		else {
-			//printf("ya pas fantome est\n");
-		} 
 	}
 	return false;
 	} else return false;
@@ -153,7 +148,6 @@ bool checkghostE(char * * map, int x,int y,int xsize){
 
 bool checkghostS(char * * map, int x,int y, int ysize){
 	int i=1;
-
 	if(y!=ysize-1){
 	if(y>=ysize-3 && y!=ysize-1){	//if pacman is in the lower lines
 		if(map[y+1][x]==GHOST1 || map[y+1][x]==GHOST2 || map[y+1][x]==GHOST3 || map[y+1][x]==GHOST4){
@@ -162,13 +156,9 @@ bool checkghostS(char * * map, int x,int y, int ysize){
 	}
 	for(i=1;i<4;i++){
 		if(map[y+i][x]==GHOST1 || map[y+i][x]==GHOST2 || map[y+i][x]==GHOST3 || map[y+i][x]==GHOST4 ){
-			//printf("ya un fantome sud \n");
 			return true;                   //we check if the considered case is a ghost and return a bool
 			break;
 		}
-		else {
-			//printf("ya pas fantome sud\n");
-		} 
 	}
 	return false;
 	} else return false;
@@ -176,24 +166,19 @@ bool checkghostS(char * * map, int x,int y, int ysize){
 
 bool checkghostW(char * * map, int x,int y){
 	int i=1;
-
 	if(x!=0){
 	for(i=1;i<4;i++){
 		if(map[y][x-i]==GHOST1 || map[y][x-i]==GHOST2 || map[y][x-i]==GHOST3 || map[y][x-i]==GHOST4 ){
-			//printf("ya un fantome ouest \n");
 			return true;                   //we check if the considered case is a ghost and return a bool
 			break;
 		}
-		else {
-			//printf("ya pas fantome ouest\n");
-		} 
 	}
 	return false;
 	} else return false;
 }
 
-bool checkdiagSupGauche(char * * map, int x,int y){
-	if(x!=0 && y!=0){
+bool checkdiagSupGauche(char * * map, int x,int y){ //Is there a ghost a the top left position ?
+	if(x!=0 && y!=0){ //Pacman not in the top left corner ?
 	if(map[y-1][x-1]==GHOST1 || map[y-1][x-1]==GHOST2 || map[y-1][x-1]==GHOST3 || map[y-1][x-1]==GHOST4){
 		return true;
 	} else return false;
@@ -243,7 +228,7 @@ void pacmanNoFear(int x,int y,int xsize,int ysize,char ** map,bool north,bool ea
 			} else west=false;
 
 	/*---------------------------------------------*/
-	//Debug permettant de savoir quelles directions sont dispo
+	//Debug
 	// printf("lastdir : %d\n", lastdirection);
 	// printf("x = %d, y = %d \n",x,y);
 	// printf("ysize = %d\n", ysize);
@@ -253,12 +238,12 @@ void pacmanNoFear(int x,int y,int xsize,int ysize,char ** map,bool north,bool ea
 	// printf("ouest : %d\n",west);
 	/*---------------------------------------------------------------------------------------------------------------------------*/
 
-	if((north && map[y-1][x]!=PATH) || (east && map[y][x+1]!=PATH) || (south && map[y+1][x]!=PATH)|| (west && map[y][x-1]!=PATH)){  //If princ
-		CanGoPointOrGhost(x,y,map,north,south,east,west,&d);
+	if((north && map[y-1][x]!=PATH) || (east && map[y][x+1]!=PATH) || (south && map[y+1][x]!=PATH)|| (west && map[y][x-1]!=PATH)){  //If he can go somewehere and it's not discovered yet
+		CanGoPointOrGhost(x,y,map,north,south,east,west,&d);	//It is either points, ghost or energy
 		goto outIF1;
-	} //End if princ
+	} //End if
 
-	else { //Begin else 
+	else { //Begin else //The path is known
 		if(north || south || east || west){ //Begin if( n || s || e || w )
 			CanGoButNoPoint(y,x,map,north,south,east,west,&d,lastdirection);
 		} //end if( n || s || e || w )
@@ -269,11 +254,11 @@ void pacmanNoFear(int x,int y,int xsize,int ysize,char ** map,bool north,bool ea
 void pacmanFear(int x,int y,int xsize,int ysize ,char** map,bool north,bool east,bool south,bool west,direction * d, direction lastdirection){
 
 	if(y>0 && map[y-1][x]!=WALL && map[y-1][x]!=DOOR){  //We check if pacman can go north (no wall or anything else)  
-			if(checkghostN(map,x,y)==true || checkdiagSupGauche(map,x,y)==true || checkdiagSupDroite(map,x,y,xsize)==true){                // we check that there are no ghost in this cases
+			if(checkghostN(map,x,y)==true || checkdiagSupGauche(map,x,y)==true || checkdiagSupDroite(map,x,y,xsize)==true){   // we check that there are no ghost in this cases
 				north=false;                                     //if there is a ghost, you can't go north
 			} else north=true;
 
-			if(map[y-1][x]==ENERGY){
+			if(map[y-1][x]==ENERGY){	//If the case ahead is energy
 				north=true;
 			} 
 			
@@ -322,13 +307,13 @@ void pacmanFear(int x,int y,int xsize,int ysize ,char** map,bool north,bool east
 
 	/*---------------------------------------------------------------------------------------------------------------------------*/
 
-	if((north && map[y-1][x]!=PATH) || (east && map[y][x+1]!=PATH) || (south && map[y+1][x]!=PATH)|| (west && map[y][x-1]!=PATH)){  //If princ
+	if((north && map[y-1][x]!=PATH) || (east && map[y][x+1]!=PATH) || (south && map[y+1][x]!=PATH)|| (west && map[y][x-1]!=PATH)){  //If if the considered path is unknown
 	CanGoPoint(x,y,map,north,south,east,west,&d);
 	goto outIF2;
 	} //End if princ
 
 	else {
-	if(north || south || east || west){
+	if(north || south || east || west){	//the considered path is known
 
 		CanGoButNoPoint(y,x,** map,north,south,east,west,&d,lastdirection);
 
@@ -338,12 +323,12 @@ void pacmanFear(int x,int y,int xsize,int ysize ,char** map,bool north,bool east
 	outIF2:;
 } //End else no energy
 
-bool IsDoor(int x, int y ,int xsize, int ysize, direction * d, direction lastdirection){
-	if(y==0 && lastdirection==0){
+bool IsDoor(int x, int y ,int xsize, int ysize, direction * d, direction lastdirection){	//Is the current position a door ?
+	if(y==0 && lastdirection==0){	//If in the first line and not coming from north (already taken a door)
 		*d=NORTH;
 		return true;
 	}
-	if(y==ysize-1 && lastdirection==2){
+	if(y==ysize-1 && lastdirection==2){ //If in the last line and not coming from south
 		*d=SOUTH;
 		return true;	
 	}
@@ -359,17 +344,17 @@ bool IsDoor(int x, int y ,int xsize, int ysize, direction * d, direction lastdir
 	}
 
 void CanGoButNoPoint(int y,int x,char ** map, bool north, bool south, bool east, bool west, direction * d, direction lastdirection){
-	if(north && map[y-1][x]==PATH){
-		if(lastdirection==0){
+	if(north && map[y-1][x]==PATH){	//Can pacman go north and the path is point ?
+		if(lastdirection==0){	//If he comes from south (allowing him to trace a straight line)
 			*d=NORTH;
 			goto outCGBNP;
 		} else *d=NORTH;
 
-		if(lastdirection==2 && east){
+		if(lastdirection==2 && east){	//If he is in a corner (from bottom left to top)
 			*d=EAST;
 			goto outCGBNP;
 		}
-		if(lastdirection==2 && west){
+		if(lastdirection==2 && west){	//If he is in a corner (from bottom right to top)
 			*d=WEST;
 			goto outCGBNP;
 		}
@@ -433,8 +418,8 @@ void CanGoButNoPoint(int y,int x,char ** map, bool north, bool south, bool east,
 	outCGBNP:;
 }
 
-void CanGoPointOrGhost(int x,int y,char**map,bool north,bool south,bool east,bool west,direction*d){
-	if(north && (map[y-1][x]==VIRGIN_PATH || map[y-1][x]==ENERGY || map[y-1][x]==GHOST1 || map[y-1][x]==GHOST2 || map[y-1][x]==GHOST3 || map[y-1][x]==GHOST4)){
+void CanGoPointOrGhost(int x,int y,char**map,bool north,bool south,bool east,bool west,direction*d){	//basically is the allowed position points, ghost or energy ?
+	if(north && (map[y-1][x]==VIRGIN_PATH || map[y-1][x]==ENERGY || map[y-1][x]==GHOST1 || map[y-1][x]==GHOST2 || map[y-1][x]==GHOST3 || map[y-1][x]==GHOST4)){ 
 			*d=NORTH;
 			goto outCGPOG;	
 		}
@@ -456,7 +441,7 @@ void CanGoPointOrGhost(int x,int y,char**map,bool north,bool south,bool east,boo
 	outCGPOG:;
 }
 
-void CanGoPoint(int x,int y,char**map,bool north,bool south,bool east,bool west,direction*d){
+void CanGoPoint(int x,int y,char**map,bool north,bool south,bool east,bool west,direction*d){	//is the allowed position point or energy ?
 	if(north && (map[y-1][x]==VIRGIN_PATH || map[y-1][x]==ENERGY)){
 		*d=NORTH;
 		goto outCGP;	
