@@ -1,0 +1,20 @@
+agis en tant que technicien lidar chez unitree avec beaucoup d'experience. Je suis un client unitree qui a besoin d'aide car il n'arrive pas a faire tourner son unitree 4D l2 lidar.
+
+mise en situation : j'ai recu mon lidar, l'ai deballé, j'ai installé le logiciel unilidar 2, branché mon lidar a une prise secteur et par le port ethernet sur mon pc et par le port usb c (bridge uart) => j'ai essayé les 2 ports
+
+problématique : lorsque j'alimente mon lidar a la prise secteur, il se met a tourner mais je ne peux pas le faire s'arreter et je ne recois aucune donnée de mesure.
+
+	- cas 1 (branché uart/usbc) : les paramètres sont les suivants
+
+		a. onglet udp mode ; select udp ip (127.0.0.1) ; slect udp port (6201) ; LIDAR IP Port (all client) ; udp port fermé
+		b. onglet serial mode : select serial port (com3) ; /!\ je ne peux pas open le serial port (err paramètre incorrect)
+		c. onglet work mode : point cloud count (500ms) ; work mode (nega mode) ; 3D/2D mode (3D); IMU Display enable (disable); enet/uart select (uart); power on mode (self start); gray enable (gray on). => une fois les param mis j'ai cliqué sur set mode puis restart.
+
+
+	- cas 1 (branché enet) : les paramètres sont les suivants
+
+		a. onglet udp mode ; select udp ip (127.0.0.1) ; slect udp port (6201) ; LIDAR IP Port (all client) ; udp port fermé
+		b. onglet serial mode : select serial port (com3) ; /!\ je ne peux pas open le serial port (err paramètre incorrect)
+		c. onglet work mode : point cloud count (500ms) ; work mode (nega mode) ; 3D/2D mode (3D); IMU Display enable (disable); enet/uart select (enet); power on mode (self start); gray enable (gray on). => une fois les param mis j'ai cliqué sur set mode puis restart.
+
+Je n'arrive pas a recevoir les données du LiDAR et il ne fait que tourner sans s'arreter et sans m'envoyer de données. Donne moi la procédure a suivre ou explique moi comment résoudre ce problème. Fait pas à pas et soit précis. Aide toi des ressources en ligne et des documents fournis par Unitreenet); power on mode (self start); gray enable (gray on). => une fois les param mis j'ai cliqué sur set mode puis restart.
